@@ -67,41 +67,58 @@
 {% endblock %}
 
 {% block javascripts %}
-{{ parent() }}
+    {{ parent() }}
 
-<script>
-    $(document).ready(function () {
-        var $table=$('.js-rep-log-table');
-        $table.find('.js-delete-rep-log').on('click',function(e) {
-            e.preventDefault();
-           // $(e.target).addClass('text-danger');
-            $(this).addClass('text-danger');
-            $(this).find('.fa')
-                .removeClass('fa-trash')
-                .addClass('fa-spinner')
-                .addClass('fa-spin')
-            var deleteUrl = $(this).data('url');
-            var $row =$(this).closest('tr');
-            var $totalWeightContainer =$table.find('.js-total-weight');
-            var $newWeight=$totalWeightContainer.html()-$row.data('weight');
-            $.ajax({
+    <script>
+        var RepLogApp = {
+            initialize: function ($wrapper) {
+                this.$wrapper = $wrapper; // this refer to the object
+                this.$wrapper.find('.js-delete-rep-log').on(
+                    'click',
+                    this.handelRepLogDelete
+                );
+                this.$wrapper.find('tbody tr').on(
+                    'click',
+                    this.handelRawClick
+                );
 
-                url:deleteUrl,
-                method:'DELETE',
-                success:function () {
-                    $row.fadeOut();
-                    $totalWeightContainer.html($newWeight);
-                }
+            },
+            handelRepLogDelete: function (e) {
+                e.preventDefault();
+                // $(e.target).addClass('text-danger');
+                $(this).addClass('text-danger');
+                $(this).find('.fa')
+                    .removeClass('fa-trash')
+                    .addClass('fa-spinner')
+                    .addClass('fa-spin');
+                var deleteUrl = $(this).data('url');
+                var $row = $(this).closest('tr');
+                var $totalWeightContainer = RepLogApp.$wrapper.find('.js-total-weight');
+                var $newWeight = $totalWeightContainer.html() - $row.data('weight');
+                $.ajax({
 
-            })
+                    url: deleteUrl,
+                    method: 'DELETE',
+                    success: function () {
+                        $row.fadeOut();
+                        $totalWeightContainer.html($newWeight);
+                    }
+
+                })
+            },
+            handelRawClick: function () {
+                console.log('table clicked');
+
+            }
+
+
+        };
+        $(document).ready(function () {
+            var $table = $('.js-rep-log-table');
+            RepLogApp.initialize($table);
 
         });
-        $table.find('tbody tr').on('click',function () {
-            console.log('table clicked');
-        });
 
-    });
-
-</script>
+    </script>
 
 {% endblock %}
